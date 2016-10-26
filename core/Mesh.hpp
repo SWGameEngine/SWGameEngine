@@ -11,18 +11,29 @@
 
 #include "Base.hpp"
 
+struct Face
+{
+    int A;
+    int B;
+    int C;
+};
+
 class Mesh
 {
 public:
     std::string Name;
     std::vector<Vec3> Vertices;
+    std::vector<Face> Faces;
     Vec3 Position;
     Vec3 Rotation;
+    Vec3 scale;
 
-    Mesh(const std::string& name, int verticesCount)
+    Mesh(const std::string& name, int verticesCount, int facesCount)
     {
         Vertices.resize(verticesCount);
+        Faces.resize(facesCount);
         Name = name;
+        scale.set(1.0f, 1.0f, 1.0f);
     }
 };
 

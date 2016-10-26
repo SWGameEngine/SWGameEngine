@@ -35,9 +35,9 @@ public:
     // in 2D coordinates using the transformation matrix
     Vec2 Project(const Vec3& coord, const Mat4& transMat);
 
-    void DrawLine(Vec2 point0, Vec2 point1);
+    void DrawLine(const Vec2& point0, const Vec2& point1);
     // DrawPoint calls PutPixel but does the clipping operation before
-    void DrawPoint(const Vec3& point);
+    void DrawPoint(const Vec2& point);
 
     // The main method of the engine that re-compute each vertex projection
     // during each frame

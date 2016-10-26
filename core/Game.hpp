@@ -22,6 +22,6 @@ protected:
     virtual ~Game();
 
     Device* _device;
-    std::vector<Mesh*> _mesh;
+    std::vector<Mesh*> _meshes;
     Camera* _mera;
 };

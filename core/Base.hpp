@@ -11,6 +11,9 @@
 
 #include <stdint.h>
 #include <stddef.h>
+
+#include <cstdlib> // for std::abs
+#include <cmath>
 #include <string>
 #include <vector>
 
