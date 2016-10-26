@@ -10,12 +10,14 @@
 #define Bitmap_hpp
 
 #include "Base.hpp"
+#include "Ref.hpp"
 
-class Bitmap
+class Bitmap : public Ref
 {
 public:
-    Bitmap(int width, int height);
+    Bitmap(byte* buf, int width, int height);
 
+    byte* _buf;
     int PixelWidth;
     int PixelHeight;
 

@@ -19,6 +19,7 @@ class Device
 {
 public:
     Device(Bitmap* bmp);
+    virtual ~Device();
 
     // This method is called to clear the back buffer with a specific color
     void Clear(byte r, byte g, byte b, byte a);
@@ -32,10 +33,10 @@ public:
 
     // Project takes some 3D coordinates and transform them
     // in 2D coordinates using the transformation matrix
-    Vec2 Project(const Vec3& coord, const Mat4& transMat);
+    Vec3 Project(const Vec3& coord, const Mat4& transMat);
 
     // DrawPoint calls PutPixel but does the clipping operation before
-    void DrawPoint(const Vec2& point);
+    void DrawPoint(const Vec3& point);
 
     // The main method of the engine that re-compute each vertex projection
     // during each frame

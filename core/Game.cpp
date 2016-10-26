@@ -30,18 +30,20 @@ Game::Game()
 
 Game::~Game()
 {
-    
+    for (auto&& mesh : _mesh)
+    {
+        delete mesh;
+    }
+    delete _mera;
+    delete _device;
 }
 
-void Game::onInit()
+void Game::init(byte* buf, uint32_t width, uint32_t height)
 {
     // Choose the back buffer resolution here
-    Bitmap* bmp = new Bitmap(640, 480);
-
+    Bitmap* bmp = new Bitmap(buf, width, height);
     _device = new Device(bmp);
-
-    // Our XAML Image control
-//    frontBuffer.Source = bmp;
+    bmp->release();
 
     _mesh[0]->Vertices[0] = Vec3(-1, 1, 1);
     _mesh[0]->Vertices[1] = Vec3(1, 1, 1);
@@ -52,11 +54,8 @@ void Game::onInit()
     _mesh[0]->Vertices[6] = Vec3(1, -1, 1);
     _mesh[0]->Vertices[7] = Vec3(1, -1, -1);
 
-    _mera->Position = Vec3(0, 0, 10.0f);
+    _mera->Position = Vec3(0, 0, 2.0f);
     _mera->Target = Vec3::ZERO;
-
-    // Registering to the XAML rendering loop
-//    CompositionTarget.Rendering += CompositionTarget_Rendering;
 }
 
 // Rendering loop handler

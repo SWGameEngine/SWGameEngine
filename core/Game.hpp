@@ -1,6 +1,6 @@
 #pragma once
 
-#include <vector>
+#include "Base.hpp"
 
 class Device;
 class Mesh;
@@ -12,17 +12,16 @@ public:
     static Game* getInstance();
     static void destroyInstance();
 
-    Game();
-    virtual ~Game();
-    
-    void onInit();
-    void onDestroy();
+    void init(byte* buf, uint32_t width, uint32_t height);
 
     void render();
 
-private:
-    Device* _device;
+protected:
 
+    Game();
+    virtual ~Game();
+
+    Device* _device;
     std::vector<Mesh*> _mesh;
     Camera* _mera;
 };
