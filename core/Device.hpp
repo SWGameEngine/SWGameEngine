@@ -33,8 +33,9 @@ public:
 
     // Project takes some 3D coordinates and transform them
     // in 2D coordinates using the transformation matrix
-    Vec3 Project(const Vec3& coord, const Mat4& transMat);
+    Vec2 Project(const Vec3& coord, const Mat4& transMat);
 
+    void DrawLine(Vec2 point0, Vec2 point1);
     // DrawPoint calls PutPixel but does the clipping operation before
     void DrawPoint(const Vec3& point);
 

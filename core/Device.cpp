@@ -68,7 +68,7 @@ void Device::PutPixel(int x, int y, Color4 color)
 
 // Project takes some 3D coordinates and transform them
 // in 2D coordinates using the transformation matrix
-Vec3 Device::Project(const Vec3& coord, const Mat4& transMat)
+Vec2 Device::Project(const Vec3& coord, const Mat4& transMat)
 {
     // transforming the coordinates
     Vec3 point;
@@ -78,8 +78,27 @@ Vec3 Device::Project(const Vec3& coord, const Mat4& transMat)
     // from top left. We then need to transform them again to have x:0, y:0 on top left.
     float x = point.x + _bmp->PixelWidth / 2.0f;
     float y = point.y + _bmp->PixelHeight / 2.0f;
-    return Vec3(x, y, point.z);
+    return Vec2(x, y);
 //    return point;
+}
+
+void Device::DrawLine(Vec2 point0, Vec2 point1)
+{
+    auto dist = (point1 - point0).getLength();
+
+    // If the distance between the 2 points is less than 2 pixels
+    // We're exiting
+    if (dist < 2)
+        return;
+
+    // Find the middle point between first & second point
+    Vec2 middlePoint = point0 + (point1 - point0)/2;
+    // We draw this point on screen
+    DrawPoint(Vec3(middlePoint.x, middlePoint.y, 0));
+    // Recursive algorithm launched between first & middle point
+    // and between middle & second point
+    DrawLine(point0, middlePoint);
+    DrawLine(middlePoint, point1);
 }
 
 // DrawPoint calls PutPixel but does the clipping operation before
@@ -89,7 +108,7 @@ void Device::DrawPoint(const Vec3& point)
     if (point.x >= 0 && point.y >= 0 && point.x < _bmp->PixelWidth && point.y < _bmp->PixelHeight)
     {
         // Drawing a yellow point
-        PutPixel((int)point.x, (int)point.y, Color4(1.0f, 1.0f, 1.0f, 1.0f));
+        PutPixel((int)point.x, (int)point.y, Color4(1.0f, 1.0f, 0.0f, 1.0f));
     }
 }
 
@@ -126,12 +145,12 @@ void Device::Render(Camera* camera, const std::vector<Mesh*>& meshes)
 
         Mat4 transformMat4 = projectionMat4 * viewMat4 * worldMat4;
 
-        for (auto&& vertex : mesh->Vertices)
+        // First, we project the 3D coordinates into the 2D space
+        for (size_t i = 0, len = mesh->Vertices.size() - 1; i < len; i++)
         {
-            // First, we project the 3D coordinates into the 2D space
-            Vec3 point = Project(vertex, transformMat4);
-            // Then we can draw on screen
-            DrawPoint(point);
+            auto point0 = Project(mesh->Vertices[i], transformMat4);
+            auto point1 = Project(mesh->Vertices[i + 1], transformMat4);
+            DrawLine(point0, point1);
         }
     }
 }
