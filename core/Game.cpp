@@ -83,7 +83,7 @@ void Game::render()
     _device->Clear(0, 0, 0, 255);
 
     // rotating slightly the cube during each frame rendered
-    _meshes[0]->Rotation = Vec3(_meshes[0]->Rotation.x + 0.01f, _meshes[0]->Rotation.y + 0.01f, _meshes[0]->Rotation.z);
+    _meshes[0]->Rotation = Vec3(_meshes[0]->Rotation.x, _meshes[0]->Rotation.y + 0.01f, _meshes[0]->Rotation.z);
 
     _meshes[0]->scale = {50, 50, 50};
 //    _meshes[0]->scale = {0.5, 0.5, 0.5};
