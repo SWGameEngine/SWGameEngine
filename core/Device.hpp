@@ -29,7 +29,7 @@ public:
     void Present();
 
     // Called to put a pixel on screen at a specific X,Y coordinates
-    void PutPixel(int x, int y, Color4 color);
+    void PutPixel(int x, int y, float z, Color4 color);
 
     // Project takes some 3D coordinates and transform them
     // in 2D coordinates using the transformation matrix
@@ -37,7 +37,7 @@ public:
 
     void DrawLine(const Vec2& point0, const Vec2& point1);
     // DrawPoint calls PutPixel but does the clipping operation before
-    void DrawPoint(const Vec2& point, Color4 color);
+    void DrawPoint(const Vec3& point, Color4 color);
 
     void ProcessScanLine(int y, Vec3 pa, Vec3 pb, Vec3 pc, Vec3 pd, Color4 color);
     void DrawTriangle(Vec3 p1, Vec3 p2, Vec3 p3, Color4 color);
@@ -50,6 +50,7 @@ public:
 
 private:
     std::vector<byte> _backBuffer;
+    std::vector<float> _depthBuffer;
     Bitmap* _bmp;
 };
 

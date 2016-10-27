@@ -11,6 +11,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <float.h>
 
 #include <cstdlib> // for std::abs
 #include <cmath>

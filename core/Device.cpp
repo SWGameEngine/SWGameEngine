@@ -23,6 +23,7 @@ Device::Device(Bitmap* bmp)
     // the back buffer size is equal to the number of pixels to draw
     // on screen (width*height) * 4 (R,G,B & Alpha values).
     _backBuffer.resize(bmp->PixelWidth * bmp->PixelHeight * 4);
+    _depthBuffer.resize(bmp->PixelWidth * bmp->PixelHeight);
 }
 
 Device::~Device()
@@ -40,6 +41,12 @@ void Device::Clear(byte r, byte g, byte b, byte a) {
         _backBuffer[index + 2] = g;
         _backBuffer[index + 3] = b;
     }
+
+    // Clearing Depth Buffer
+    for (int index = 0; index < _depthBuffer.size(); index++)
+    {
+        _depthBuffer[index] = FLT_MAX;
+    }
 }
 
 // Once everything is ready, we can flush the back buffer
@@ -53,17 +60,26 @@ void Device::Present()
 }
 
 // Called to put a pixel on screen at a specific X,Y coordinates
-void Device::PutPixel(int x, int y, Color4 color)
+void Device::PutPixel(int x, int y, float z, Color4 color)
 {
     // As we have a 1-D Array for our back buffer
     // we need to know the equivalent cell in 1-D based
     // on the 2D coordinates on screen
-    int index = (x + y * _bmp->PixelWidth) * 4;
+    int index = (x + y * _bmp->PixelWidth);
 
-    _backBuffer[index] = (byte)(color.a * 255);
-    _backBuffer[index + 1] = (byte)(color.r * 255);
-    _backBuffer[index + 2] = (byte)(color.g * 255);
-    _backBuffer[index + 3] = (byte)(color.b * 255);
+    if (_depthBuffer[index] < z)
+    {
+        return; // Discard
+    }
+
+    _depthBuffer[index] = z;
+
+    int index4 = index * 4;
+
+    _backBuffer[index4] = (byte)(color.a * 255);
+    _backBuffer[index4 + 1] = (byte)(color.r * 255);
+    _backBuffer[index4 + 2] = (byte)(color.g * 255);
+    _backBuffer[index4 + 3] = (byte)(color.b * 255);
 }
 
 // Project takes some 3D coordinates and transform them
@@ -85,35 +101,35 @@ Vec3 Device::Project(const Vec3& coord, const Mat4& transMat)
 
 void Device::DrawLine(const Vec2& point0, const Vec2& point1)
 {
-    int x0 = (int)point0.x;
-    int y0 = (int)point0.y;
-    int x1 = (int)point1.x;
-    int y1 = (int)point1.y;
-
-    int dx = std::abs(x1 - x0);
-    int dy = std::abs(y1 - y0);
-    int sx = (x0 < x1) ? 1 : -1;
-    int sy = (y0 < y1) ? 1 : -1;
-    int err = dx - dy;
-
-    while (true) {
-        DrawPoint(Vec2(x0, y0), Color4(1, 1, 0, 1));
-
-        if ((x0 == x1) && (y0 == y1)) break;
-        int e2 = 2 * err;
-        if (e2 > -dy) { err -= dy; x0 += sx; }
-        if (e2 < dx) { err += dx; y0 += sy; }
-    }
+//    int x0 = (int)point0.x;
+//    int y0 = (int)point0.y;
+//    int x1 = (int)point1.x;
+//    int y1 = (int)point1.y;
+//
+//    int dx = std::abs(x1 - x0);
+//    int dy = std::abs(y1 - y0);
+//    int sx = (x0 < x1) ? 1 : -1;
+//    int sy = (y0 < y1) ? 1 : -1;
+//    int err = dx - dy;
+//
+//    while (true) {
+//        DrawPoint(Vec2(x0, y0), Color4(1, 1, 0, 1));
+//
+//        if ((x0 == x1) && (y0 == y1)) break;
+//        int e2 = 2 * err;
+//        if (e2 > -dy) { err -= dy; x0 += sx; }
+//        if (e2 < dx) { err += dx; y0 += sy; }
+//    }
 }
 
 // DrawPoint calls PutPixel but does the clipping operation before
-void Device::DrawPoint(const Vec2& point, Color4 color)
+void Device::DrawPoint(const Vec3& point, Color4 color)
 {
     // Clipping what's visible on screen
     if (point.x >= 0 && point.y >= 0 && point.x < _bmp->PixelWidth && point.y < _bmp->PixelHeight)
     {
         // Drawing a yellow point
-        PutPixel((int)point.x, (int)point.y, color);
+        PutPixel((int)point.x, (int)point.y, point.z, color);
     }
 }
 
@@ -145,10 +161,17 @@ void Device::ProcessScanLine(int y, Vec3 pa, Vec3 pb, Vec3 pc, Vec3 pd, Color4 c
     int sx = (int)Interpolate(pa.x, pb.x, gradient1);
     int ex = (int)Interpolate(pc.x, pd.x, gradient2);
 
+    // starting Z & ending Z
+    float z1 = Interpolate(pa.z, pb.z, gradient1);
+    float z2 = Interpolate(pc.z, pd.z, gradient2);
+
     // drawing a line from left (sx) to right (ex)
     for (int x = sx; x < ex; x++)
     {
-        DrawPoint(Vec2(x, y), color);
+        float gradient = (x - sx) / (float)(ex - sx);
+        float z = Interpolate(z1, z2, gradient);
+
+        DrawPoint(Vec3(x, y, z), color);
     }
 }
 
