@@ -342,6 +342,9 @@ std::vector<Mesh*> Device::LoadJSONFile(const std::string& fileName)
     rapidjson::Document jsonObject;
     jsonObject.Parse((char*)modelData.data());
 
+    assert(jsonObject.IsObject());
+    assert(jsonObject.HasMember("meshes"));
+
     for (int meshIndex = 0, len = jsonObject["meshes"].Size(); meshIndex < len; meshIndex++)
     {
         const auto& meshObj = jsonObject["meshes"][meshIndex];
