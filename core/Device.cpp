@@ -12,8 +12,9 @@
 #include "Bitmap.hpp"
 #include "Camera.hpp"
 #include "Mesh.hpp"
-
-
+#include "files/FileSystem.h"
+#include "external/rapidjson/rapidjson.h"
+#include "external/rapidjson/document.h"
 
 Device::Device(Bitmap* bmp)
 {
@@ -172,4 +173,72 @@ void Device::Render(Camera* camera, const std::vector<Mesh*>& meshes)
             DrawLine(pixelC, pixelA);
         }
     }
+}
+
+std::vector<Mesh*> Device::LoadJSONFile(const std::string& fileName)
+{
+    std::vector<Mesh*> meshes;
+
+    std::vector<uint8_t> modelData;
+    FileSystem system;
+    system.loadFile("models/monkey.babylon", modelData);
+
+    rapidjson::Document jsonObject;
+    jsonObject.Parse((char*)modelData.data());
+
+    for (int meshIndex = 0, len = jsonObject["meshes"].Size(); meshIndex < len; meshIndex++)
+    {
+        const auto& meshObj = jsonObject["meshes"][meshIndex];
+        const auto& verticesArray = meshObj["vertices"];
+        // Faces
+        const auto& indicesArray = meshObj["indices"];
+
+        int uvCount = meshObj["uvCount"].GetInt();
+        int verticesStep = 1;
+
+        // Depending of the number of texture's coordinates per vertex
+        // we're jumping in the vertices array  by 6, 8 & 10 windows frame
+        switch (uvCount)
+        {
+            case 0:
+                verticesStep = 6;
+                break;
+            case 1:
+                verticesStep = 8;
+                break;
+            case 2:
+                verticesStep = 10;
+                break;
+        }
+
+        // the number of interesting vertices information for us
+        int verticesCount = verticesArray.Size() / verticesStep;
+        // number of faces is logically the size of the array divided by 3 (A, B, C)
+        int facesCount = indicesArray.Size() / 3;
+        auto mesh = new Mesh(meshObj["name"].GetString(), verticesCount, facesCount);
+
+        // Filling the Vertices array of our mesh first
+        for (int index = 0; index < verticesCount; index++)
+        {
+            float x = (float)verticesArray[index * verticesStep].GetDouble();
+            float y = (float)verticesArray[index * verticesStep + 1].GetDouble();
+            float z = (float)verticesArray[index * verticesStep + 2].GetDouble();
+            mesh->Vertices[index] = Vec3(x, y, z);
+        }
+
+        // Then filling the Faces array
+        for (int index = 0; index < facesCount; index++)
+        {
+            int a = (int)indicesArray[index * 3].GetInt();
+            int b = (int)indicesArray[index * 3 + 1].GetInt();
+            int c = (int)indicesArray[index * 3 + 2].GetInt();
+            mesh->Faces[index] = { a, b, c };
+        }
+
+        // Getting the position you've set in Blender
+        const auto& position = meshObj["position"];
+        mesh->Position = Vec3((float)position[0].GetDouble(), (float)position[1].GetDouble(), (float)position[2].GetDouble());
+        meshes.push_back(mesh);
+    }
+    return meshes;
 }

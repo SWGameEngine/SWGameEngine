@@ -43,6 +43,8 @@ public:
     // during each frame
     void Render(Camera* camera, const std::vector<Mesh*>& meshes);
 
+    std::vector<Mesh*> LoadJSONFile(const std::string& fileName);
+
 private:
     std::vector<byte> _backBuffer;
     Bitmap* _bmp;
