@@ -183,12 +183,15 @@ void Device::ProcessScanLine(ScanLineData data, Vertex va, Vertex vb, Vertex vc,
     float z1 = Interpolate(pa.z, pb.z, gradient1);
     float z2 = Interpolate(pc.z, pd.z, gradient2);
 
+    float snl = Interpolate(data.ndotla, data.ndotlb, gradient1);
+    float enl = Interpolate(data.ndotlc, data.ndotld, gradient2);
+
     // drawing a line from left (sx) to right (ex)
     for (int x = sx; x < ex; x++)
     {
         float gradient = (x - sx) / (float)(ex - sx);
         float z = Interpolate(z1, z2, gradient);
-        float ndotl = data.ndotla;
+        float ndotl = Interpolate(snl, enl, gradient);
         // changing the color value using the cosine of the angle
         // between the light vector and the normal vector
         DrawPoint(Vec3(x, data.currentY, z), color * ndotl);
@@ -245,10 +248,11 @@ void Device::DrawTriangle(Vertex v1, Vertex v2, Vertex v3, Color4 color)
     Vec3 lightPos = Vec3(0, 10, -10);
     // computing the cos of the angle between the light vector and the normal vector
     // it will return a value between 0 and 1 that will be used as the intensity of the color
-    float ndotl = ComputeNDotL(centerPoint, vnFace, lightPos);
+    float nl1 = ComputeNDotL(v1.WorldCoordinates, v1.Normal, lightPos);
+    float nl2 = ComputeNDotL(v2.WorldCoordinates, v2.Normal, lightPos);
+    float nl3 = ComputeNDotL(v3.WorldCoordinates, v3.Normal, lightPos);
 
     ScanLineData data;
-    data.ndotla = ndotl;
 
     // inverse slopes
     float dP1P2, dP1P3;
@@ -284,10 +288,18 @@ void Device::DrawTriangle(Vertex v1, Vertex v2, Vertex v3, Color4 color)
 
             if (y < p2.y)
             {
+                data.ndotla = nl1;
+                data.ndotlb = nl3;
+                data.ndotlc = nl1;
+                data.ndotld = nl2;
                 ProcessScanLine(data, v1, v3, v1, v2, color);
             }
             else
             {
+                data.ndotla = nl1;
+                data.ndotlb = nl3;
+                data.ndotlc = nl2;
+                data.ndotld = nl3;
                 ProcessScanLine(data, v1, v3, v2, v3, color);
             }
         }
@@ -311,10 +323,18 @@ void Device::DrawTriangle(Vertex v1, Vertex v2, Vertex v3, Color4 color)
 
             if (y < p2.y)
             {
+                data.ndotla = nl1;
+                data.ndotlb = nl2;
+                data.ndotlc = nl1;
+                data.ndotld = nl3;
                 ProcessScanLine(data, v1, v2, v1, v3, color);
             }
             else
             {
+                data.ndotla = nl2;
+                data.ndotlb = nl3;
+                data.ndotlc = nl1;
+                data.ndotld = nl3;
                 ProcessScanLine(data, v2, v3, v1, v3, color);
             }
         }
