@@ -40,7 +40,7 @@ Game::~Game()
 void Game::init(byte* buf, uint32_t width, uint32_t height)
 {
     _mera = new Camera();
-    _mera->Position = Vec3(0, 0, -400.0f);
+    _mera->Position = Vec3(0, 0, -10.0f);
     _mera->Target = Vec3::ZERO;
 
     // Choose the back buffer resolution here
@@ -83,9 +83,9 @@ void Game::render()
     _device->Clear(0, 0, 0, 255);
 
     // rotating slightly the cube during each frame rendered
-    _meshes[0]->Rotation = Vec3(_meshes[0]->Rotation.x, _meshes[0]->Rotation.y + 0.01f, _meshes[0]->Rotation.z);
+    _meshes[0]->Rotation = Vec3(_meshes[0]->Rotation.x, _meshes[0]->Rotation.y - 0.01f, _meshes[0]->Rotation.z);
 
-    _meshes[0]->scale = {50, 50, 50};
+//    _meshes[0]->scale = {50, 50, 50};
 //    _meshes[0]->scale = {0.5, 0.5, 0.5};
     _meshes[0]->Position = {0, 0, 0};
     // Doing the various matrix operations

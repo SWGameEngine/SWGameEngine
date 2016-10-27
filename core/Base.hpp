@@ -38,6 +38,23 @@ struct Color4
     , a(alpha)
     {}
 
+    Color4(const Color4& o)
+    {
+        r = o.r;
+        g = o.g;
+        b = o.b;
+        a = o.a;
+    }
+
+    Color4 operator*(float v)
+    {
+        Color4 result(*this);
+        result.r *= v;
+        result.g *= v;
+        result.b *= v;
+        return result;
+    }
+
     float r;
     float g;
     float b;

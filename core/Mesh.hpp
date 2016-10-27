@@ -18,11 +18,18 @@ struct Face
     int C;
 };
 
+struct Vertex
+{
+    Vec3 Normal;
+    Vec3 Coordinates;
+    Vec3 WorldCoordinates;
+};
+
 class Mesh
 {
 public:
     std::string Name;
-    std::vector<Vec3> Vertices;
+    std::vector<Vertex> Vertices;
     std::vector<Face> Faces;
     Vec3 Position;
     Vec3 Rotation;

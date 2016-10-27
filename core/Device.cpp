@@ -6,6 +6,8 @@
 //  Copyright © 2016 James Chen. All rights reserved.
 //
 
+// https://www.davrous.com/2013/06/21/tutorial-part-4-learning-how-to-write-a-3d-software-engine-in-c-ts-or-js-rasterization-z-buffering/
+
 #include "Device.hpp"
 
 #include "Base.hpp"
@@ -84,19 +86,30 @@ void Device::PutPixel(int x, int y, float z, Color4 color)
 
 // Project takes some 3D coordinates and transform them
 // in 2D coordinates using the transformation matrix
-Vec3 Device::Project(const Vec3& coord, const Mat4& transMat)
+Vertex Device::Project(const Vertex& vertex, const Mat4& transMat, const Mat4& world)
 {
-    // transforming the coordinates
-    Vec4 point = Vec4(coord.x, coord.y, coord.z, 1);
+    // transforming the coordinates into 2D space
+    Vec4 point = Vec4(vertex.Coordinates.x, vertex.Coordinates.y, vertex.Coordinates.z, 1);
     transMat.transformVector(&point);
+
+    assert(world.m[12] == 0);
+    assert(world.m[13] == 0);
+    assert(world.m[14] == 0);
+    // transforming the coordinates & the normal to the vertex in the 3D world
+    Vec4 point3dWorld(vertex.Coordinates.x, vertex.Coordinates.y, vertex.Coordinates.z, 1);
+    world.transformVector(&point3dWorld);
+
+    Vec4 normal3dWorld(vertex.Normal.x, vertex.Normal.y, vertex.Normal.z, 1);
+    world.transformVector(&normal3dWorld);
 
     // The transformed coordinates will be based on coordinate system
     // starting on the center of the screen. But drawing on screen normally starts
     // from top left. We then need to transform them again to have x:0, y:0 on top left.
     float x = point.x/point.w * _bmp->PixelWidth + _bmp->PixelWidth / 2.0f;
     float y = -point.y/point.w * _bmp->PixelHeight + _bmp->PixelHeight / 2.0f;
-    return Vec3(x, y, point.z/point.w);
-//    return point;
+    return {{normal3dWorld.x/normal3dWorld.w, normal3dWorld.y/normal3dWorld.w, normal3dWorld.z/normal3dWorld.w},
+        {x, y, point.z/point.w},
+        {point3dWorld.x/point3dWorld.w, point3dWorld.y/point3dWorld.w, point3dWorld.z/point3dWorld.w}};
 }
 
 void Device::DrawLine(const Vec2& point0, const Vec2& point1)
@@ -150,13 +163,18 @@ static float Interpolate(float min, float max, float gradient)
 // drawing line between 2 points from left to right
 // papb -> pcpd
 // pa, pb, pc, pd must then be sorted before
-void Device::ProcessScanLine(int y, Vec3 pa, Vec3 pb, Vec3 pc, Vec3 pd, Color4 color)
+void Device::ProcessScanLine(ScanLineData data, Vertex va, Vertex vb, Vertex vc, Vertex vd, Color4 color)
 {
+    Vec3 pa = va.Coordinates;
+    Vec3 pb = vb.Coordinates;
+    Vec3 pc = vc.Coordinates;
+    Vec3 pd = vd.Coordinates;
+
     // Thanks to current Y, we can compute the gradient to compute others values like
     // the starting X (sx) and ending X (ex) to draw between
     // if pa.y == pb.y or pc.y == pd.y, gradient is forced to 1
-    float gradient1 = pa.y != pb.y ? (y - pa.y) / (pb.y - pa.y) : 1;
-    float gradient2 = pc.y != pd.y ? (y - pc.y) / (pd.y - pc.y) : 1;
+    float gradient1 = pa.y != pb.y ? (data.currentY - pa.y) / (pb.y - pa.y) : 1;
+    float gradient2 = pc.y != pd.y ? (data.currentY - pc.y) / (pd.y - pc.y) : 1;
 
     int sx = (int)Interpolate(pa.x, pb.x, gradient1);
     int ex = (int)Interpolate(pc.x, pd.x, gradient2);
@@ -170,36 +188,67 @@ void Device::ProcessScanLine(int y, Vec3 pa, Vec3 pb, Vec3 pc, Vec3 pd, Color4 c
     {
         float gradient = (x - sx) / (float)(ex - sx);
         float z = Interpolate(z1, z2, gradient);
-
-        DrawPoint(Vec3(x, y, z), color);
+        float ndotl = data.ndotla;
+        // changing the color value using the cosine of the angle
+        // between the light vector and the normal vector
+        DrawPoint(Vec3(x, data.currentY, z), color * ndotl);
     }
 }
 
-void Device::DrawTriangle(Vec3 p1, Vec3 p2, Vec3 p3, Color4 color)
+// Compute the cosine of the angle between the light vector and the normal vector
+// Returns a value between 0 and 1
+float Device::ComputeNDotL(Vec3 vertex, Vec3 normal, Vec3 lightPosition)
+{
+    Vec3 lightDirection = lightPosition - vertex;
+
+    normal.normalize();
+    lightDirection.normalize();
+
+    return std::max(0.0f, Vec3::dot(normal, lightDirection));
+}
+
+void Device::DrawTriangle(Vertex v1, Vertex v2, Vertex v3, Color4 color)
 {
     // Sorting the points in order to always have this order on screen p1, p2 & p3
     // with p1 always up (thus having the Y the lowest possible to be near the top screen)
     // then p2 between p1 & p3
-    if (p1.y > p2.y)
+    if (v1.Coordinates.y > v2.Coordinates.y)
     {
-        auto temp = p2;
-        p2 = p1;
-        p1 = temp;
+        auto temp = v2;
+        v2 = v1;
+        v1 = temp;
     }
 
-    if (p2.y > p3.y)
+    if (v2.Coordinates.y > v3.Coordinates.y)
     {
-        auto temp = p2;
-        p2 = p3;
-        p3 = temp;
+        auto temp = v2;
+        v2 = v3;
+        v3 = temp;
     }
 
-    if (p1.y > p2.y)
+    if (v1.Coordinates.y > v2.Coordinates.y)
     {
-        auto temp = p2;
-        p2 = p1;
-        p1 = temp;
+        auto temp = v2;
+        v2 = v1;
+        v1 = temp;
     }
+
+    Vec3 p1 = v1.Coordinates;
+    Vec3 p2 = v2.Coordinates;
+    Vec3 p3 = v3.Coordinates;
+
+    // normal face's vector is the average normal between each vertex's normal
+    // computing also the center point of the face
+    Vec3 vnFace = (v1.Normal + v2.Normal + v3.Normal) / 3;
+    Vec3 centerPoint = (v1.WorldCoordinates + v2.WorldCoordinates + v3.WorldCoordinates) / 3;
+    // Light position
+    Vec3 lightPos = Vec3(0, 10, -10);
+    // computing the cos of the angle between the light vector and the normal vector
+    // it will return a value between 0 and 1 that will be used as the intensity of the color
+    float ndotl = ComputeNDotL(centerPoint, vnFace, lightPos);
+
+    ScanLineData data;
+    data.ndotla = ndotl;
 
     // inverse slopes
     float dP1P2, dP1P3;
@@ -231,13 +280,15 @@ void Device::DrawTriangle(Vec3 p1, Vec3 p2, Vec3 p3, Color4 color)
     {
         for (int y = (int)p1.y; y <= (int)p3.y; y++)
         {
+            data.currentY = y;
+
             if (y < p2.y)
             {
-                ProcessScanLine(y, p1, p3, p1, p2, color);
+                ProcessScanLine(data, v1, v3, v1, v2, color);
             }
             else
             {
-                ProcessScanLine(y, p1, p3, p2, p3, color);
+                ProcessScanLine(data, v1, v3, v2, v3, color);
             }
         }
     }
@@ -256,13 +307,15 @@ void Device::DrawTriangle(Vec3 p1, Vec3 p2, Vec3 p3, Color4 color)
     {
         for (int y = (int)p1.y; y <= (int)p3.y; y++)
         {
+            data.currentY = y;
+
             if (y < p2.y)
             {
-                ProcessScanLine(y, p1, p2, p1, p3, color);
+                ProcessScanLine(data, v1, v2, v1, v3, color);
             }
             else
             {
-                ProcessScanLine(y, p2, p3, p1, p3, color);
+                ProcessScanLine(data, v2, v3, v1, v3, color);
             }
         }
     }
@@ -316,15 +369,16 @@ void Device::Render(Camera* camera, const std::vector<Mesh*>& meshes)
             auto vertexB = mesh->Vertices[face.B];
             auto vertexC = mesh->Vertices[face.C];
 
-            auto pixelA = Project(vertexA, transformMatrix);
-            auto pixelB = Project(vertexB, transformMatrix);
-            auto pixelC = Project(vertexC, transformMatrix);
+            auto pixelA = Project(vertexA, transformMatrix, worldMat4);
+            auto pixelB = Project(vertexB, transformMatrix, worldMat4);
+            auto pixelC = Project(vertexC, transformMatrix, worldMat4);
 
 //            DrawLine(pixelA, pixelB);
 //            DrawLine(pixelB, pixelC);
 //            DrawLine(pixelC, pixelA);
 
-            auto color = 0.25f + (faceIndex % mesh->Faces.size()) * 0.75f / mesh->Faces.size();
+//            float color = 0.25f + (faceIndex % mesh->Faces.size()) * 0.75f / mesh->Faces.size();
+            float color = 1.0f;
             DrawTriangle(pixelA, pixelB, pixelC, Color4(color, color, color, 1));
             ++faceIndex;
         }
@@ -382,7 +436,13 @@ std::vector<Mesh*> Device::LoadJSONFile(const std::string& fileName)
             float x = (float)verticesArray[index * verticesStep].GetDouble();
             float y = (float)verticesArray[index * verticesStep + 1].GetDouble();
             float z = (float)verticesArray[index * verticesStep + 2].GetDouble();
-            mesh->Vertices[index] = Vec3(x, y, z);
+
+            // Loading the vertex normal exported by Blender
+            float nx = (float)verticesArray[index * verticesStep + 3].GetDouble();
+            float ny = (float)verticesArray[index * verticesStep + 4].GetDouble();
+            float nz = (float)verticesArray[index * verticesStep + 5].GetDouble();
+
+            mesh->Vertices[index] = {{nx, ny, nz}, {x, y, z}, {0, 0, 0}};
         }
 
         // Then filling the Faces array
