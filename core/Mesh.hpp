@@ -11,6 +11,8 @@
 
 #include "Base.hpp"
 
+class Texture;
+
 struct Face
 {
     int A;
@@ -23,6 +25,7 @@ struct Vertex
     Vec3 Normal;
     Vec3 Coordinates;
     Vec3 WorldCoordinates;
+    Vec2 TextureCoordinates;
 };
 
 class Mesh
@@ -31,6 +34,7 @@ public:
     std::string Name;
     std::vector<Vertex> Vertices;
     std::vector<Face> Faces;
+    std::shared_ptr<Texture> Texture;
     Vec3 Position;
     Vec3 Rotation;
     Vec3 scale;

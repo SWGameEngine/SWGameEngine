@@ -14,6 +14,7 @@
 
 class Bitmap;
 class Camera;
+class Texture;
 
 struct ScanLineData
 {
@@ -22,6 +23,16 @@ struct ScanLineData
     float ndotlb = 0.0f;
     float ndotlc = 0.0f;
     float ndotld = 0.0f;
+
+    float ua = 0.0f;;
+    float ub = 0.0f;;
+    float uc = 0.0f;;
+    float ud = 0.0f;;
+
+    float va = 0.0f;;
+    float vb = 0.0f;;
+    float vc = 0.0f;;
+    float vd = 0.0f;;
 };
 
 class Device
@@ -50,9 +61,9 @@ public:
     // DrawPoint calls PutPixel but does the clipping operation before
     void DrawPoint(const Vec3& point, Color4 color);
 
-    void ProcessScanLine(ScanLineData data, Vertex va, Vertex vb, Vertex vc, Vertex vd, Color4 color);
+    void ProcessScanLine(ScanLineData data, Vertex va, Vertex vb, Vertex vc, Vertex vd, Color4 color, Texture* texture);
     float ComputeNDotL(Vec3 vertex, Vec3 normal, Vec3 lightPosition);
-    void DrawTriangle(Vertex v1, Vertex v2, Vertex v3, Color4 color);
+    void DrawTriangle(Vertex v1, Vertex v2, Vertex v3, Color4 color, Texture* texture);
 
     // The main method of the engine that re-compute each vertex projection
     // during each frame

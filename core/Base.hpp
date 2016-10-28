@@ -17,6 +17,7 @@
 #include <cmath>
 #include <string>
 #include <vector>
+#include <memory>
 
 #include "math/CCMath.h"
 
@@ -59,6 +60,8 @@ struct Color4
     float g;
     float b;
     float a;
+
+    static Color4 White;
 };
 
 #endif /* base_h */

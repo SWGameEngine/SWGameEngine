@@ -14,9 +14,14 @@
 #include "Bitmap.hpp"
 #include "Camera.hpp"
 #include "Mesh.hpp"
+#include "Material.hpp"
+#include "Texture.hpp"
+
 #include "files/FileSystem.h"
 #include "external/rapidjson/rapidjson.h"
 #include "external/rapidjson/document.h"
+
+#include <unordered_map>
 
 Device::Device(Bitmap* bmp)
 {
@@ -107,9 +112,13 @@ Vertex Device::Project(const Vertex& vertex, const Mat4& transMat, const Mat4& w
     // from top left. We then need to transform them again to have x:0, y:0 on top left.
     float x = point.x/point.w * _bmp->PixelWidth + _bmp->PixelWidth / 2.0f;
     float y = -point.y/point.w * _bmp->PixelHeight + _bmp->PixelHeight / 2.0f;
-    return {{normal3dWorld.x/normal3dWorld.w, normal3dWorld.y/normal3dWorld.w, normal3dWorld.z/normal3dWorld.w},
-        {x, y, point.z/point.w},
-        {point3dWorld.x/point3dWorld.w, point3dWorld.y/point3dWorld.w, point3dWorld.z/point3dWorld.w}};
+
+    Vertex ret;
+    ret.Normal = {normal3dWorld.x/normal3dWorld.w, normal3dWorld.y/normal3dWorld.w, normal3dWorld.z/normal3dWorld.w};
+    ret.Coordinates = {x, y, point.z/point.w};
+    ret.WorldCoordinates = {point3dWorld.x/point3dWorld.w, point3dWorld.y/point3dWorld.w, point3dWorld.z/point3dWorld.w};
+    ret.TextureCoordinates = vertex.TextureCoordinates;
+    return ret;
 }
 
 void Device::DrawLine(const Vec2& point0, const Vec2& point1)
@@ -163,7 +172,7 @@ static float Interpolate(float min, float max, float gradient)
 // drawing line between 2 points from left to right
 // papb -> pcpd
 // pa, pb, pc, pd must then be sorted before
-void Device::ProcessScanLine(ScanLineData data, Vertex va, Vertex vb, Vertex vc, Vertex vd, Color4 color)
+void Device::ProcessScanLine(ScanLineData data, Vertex va, Vertex vb, Vertex vc, Vertex vd, Color4 color, Texture* texture)
 {
     Vec3 pa = va.Coordinates;
     Vec3 pb = vb.Coordinates;
@@ -183,18 +192,40 @@ void Device::ProcessScanLine(ScanLineData data, Vertex va, Vertex vb, Vertex vc,
     float z1 = Interpolate(pa.z, pb.z, gradient1);
     float z2 = Interpolate(pc.z, pd.z, gradient2);
 
+    // Interpolating normals on Y
     float snl = Interpolate(data.ndotla, data.ndotlb, gradient1);
     float enl = Interpolate(data.ndotlc, data.ndotld, gradient2);
+
+    // Interpolating texture coordinates on Y
+    float su = Interpolate(data.ua, data.ub, gradient1);
+    float eu = Interpolate(data.uc, data.ud, gradient2);
+    float sv = Interpolate(data.va, data.vb, gradient1);
+    float ev = Interpolate(data.vc, data.vd, gradient2);
 
     // drawing a line from left (sx) to right (ex)
     for (int x = sx; x < ex; x++)
     {
         float gradient = (x - sx) / (float)(ex - sx);
+
+        // Interpolating Z, normal and texture coordinates on X
         float z = Interpolate(z1, z2, gradient);
         float ndotl = Interpolate(snl, enl, gradient);
-        // changing the color value using the cosine of the angle
+        float u = Interpolate(su, eu, gradient);
+        float v = Interpolate(sv, ev, gradient);
+
+        Color4 textureColor;
+
+        if (texture != nullptr)
+            textureColor = texture->Map(u, v);
+        else
+            textureColor = Color4(1, 1, 1, 1);
+
+        // changing the native color value using the cosine of the angle
         // between the light vector and the normal vector
-        DrawPoint(Vec3(x, data.currentY, z), color * ndotl);
+        // and the texture color
+        DrawPoint(Vec3(x, data.currentY, z), Color4(color.r * ndotl * textureColor.b,
+                                                    color.g * ndotl * textureColor.g,
+                                                    color.b * ndotl * textureColor.r, 1));
     }
 }
 
@@ -210,7 +241,7 @@ float Device::ComputeNDotL(Vec3 vertex, Vec3 normal, Vec3 lightPosition)
     return std::max(0.0f, Vec3::dot(normal, lightDirection));
 }
 
-void Device::DrawTriangle(Vertex v1, Vertex v2, Vertex v3, Color4 color)
+void Device::DrawTriangle(Vertex v1, Vertex v2, Vertex v3, Color4 color, Texture* texture)
 {
     // Sorting the points in order to always have this order on screen p1, p2 & p3
     // with p1 always up (thus having the Y the lowest possible to be near the top screen)
@@ -292,7 +323,18 @@ void Device::DrawTriangle(Vertex v1, Vertex v2, Vertex v3, Color4 color)
                 data.ndotlb = nl3;
                 data.ndotlc = nl1;
                 data.ndotld = nl2;
-                ProcessScanLine(data, v1, v3, v1, v2, color);
+
+                data.ua = v1.TextureCoordinates.x;
+                data.ub = v3.TextureCoordinates.x;
+                data.uc = v1.TextureCoordinates.x;
+                data.ud = v2.TextureCoordinates.x;
+
+                data.va = v1.TextureCoordinates.y;
+                data.vb = v3.TextureCoordinates.y;
+                data.vc = v1.TextureCoordinates.y;
+                data.vd = v2.TextureCoordinates.y;
+
+                ProcessScanLine(data, v1, v3, v1, v2, color, texture);
             }
             else
             {
@@ -300,7 +342,18 @@ void Device::DrawTriangle(Vertex v1, Vertex v2, Vertex v3, Color4 color)
                 data.ndotlb = nl3;
                 data.ndotlc = nl2;
                 data.ndotld = nl3;
-                ProcessScanLine(data, v1, v3, v2, v3, color);
+
+                data.ua = v1.TextureCoordinates.x;
+                data.ub = v3.TextureCoordinates.x;
+                data.uc = v2.TextureCoordinates.x;
+                data.ud = v3.TextureCoordinates.x;
+
+                data.va = v1.TextureCoordinates.y;
+                data.vb = v3.TextureCoordinates.y;
+                data.vc = v2.TextureCoordinates.y;
+                data.vd = v3.TextureCoordinates.y;
+                
+                ProcessScanLine(data, v1, v3, v2, v3, color, texture);
             }
         }
     }
@@ -327,7 +380,18 @@ void Device::DrawTriangle(Vertex v1, Vertex v2, Vertex v3, Color4 color)
                 data.ndotlb = nl2;
                 data.ndotlc = nl1;
                 data.ndotld = nl3;
-                ProcessScanLine(data, v1, v2, v1, v3, color);
+
+                data.ua = v1.TextureCoordinates.x;
+                data.ub = v2.TextureCoordinates.x;
+                data.uc = v1.TextureCoordinates.x;
+                data.ud = v3.TextureCoordinates.x;
+
+                data.va = v1.TextureCoordinates.y;
+                data.vb = v2.TextureCoordinates.y;
+                data.vc = v1.TextureCoordinates.y;
+                data.vd = v3.TextureCoordinates.y;
+
+                ProcessScanLine(data, v1, v2, v1, v3, color, texture);
             }
             else
             {
@@ -335,7 +399,18 @@ void Device::DrawTriangle(Vertex v1, Vertex v2, Vertex v3, Color4 color)
                 data.ndotlb = nl3;
                 data.ndotlc = nl1;
                 data.ndotld = nl3;
-                ProcessScanLine(data, v2, v3, v1, v3, color);
+
+                data.ua = v2.TextureCoordinates.x;
+                data.ub = v3.TextureCoordinates.x;
+                data.uc = v1.TextureCoordinates.x;
+                data.ud = v3.TextureCoordinates.x;
+
+                data.va = v2.TextureCoordinates.y;
+                data.vb = v3.TextureCoordinates.y;
+                data.vc = v1.TextureCoordinates.y;
+                data.vd = v3.TextureCoordinates.y;
+                
+                ProcessScanLine(data, v2, v3, v1, v3, color, texture);
             }
         }
     }
@@ -399,7 +474,7 @@ void Device::Render(Camera* camera, const std::vector<Mesh*>& meshes)
 
 //            float color = 0.25f + (faceIndex % mesh->Faces.size()) * 0.75f / mesh->Faces.size();
             float color = 1.0f;
-            DrawTriangle(pixelA, pixelB, pixelC, Color4(color, color, color, 1));
+            DrawTriangle(pixelA, pixelB, pixelC, Color4(color, color, color, 1), mesh->Texture.get());
             ++faceIndex;
         }
     }
@@ -409,6 +484,7 @@ std::vector<Mesh*> Device::LoadJSONFile(const std::string& fileName)
 {
     std::vector<Mesh*> meshes;
 
+    std::unordered_map<std::string, Material> materials;
     std::vector<uint8_t> modelData;
     FileSystem system;
     system.loadFile("models/monkey.babylon", modelData);
@@ -418,6 +494,17 @@ std::vector<Mesh*> Device::LoadJSONFile(const std::string& fileName)
 
     assert(jsonObject.IsObject());
     assert(jsonObject.HasMember("meshes"));
+
+    for (int materialIndex = 0, len = jsonObject["materials"].Size(); materialIndex < len; materialIndex++)
+    {
+        Material material;
+        material.Name = jsonObject["materials"][materialIndex]["name"].GetString();
+        material.ID = jsonObject["materials"][materialIndex]["id"].GetString();
+        if (jsonObject["materials"][materialIndex].HasMember("diffuseTexture"))
+            material.DiffuseTextureName = jsonObject["materials"][materialIndex]["diffuseTexture"]["name"].GetString();
+
+        materials[material.ID] = material;
+    }
 
     for (int meshIndex = 0, len = jsonObject["meshes"].Size(); meshIndex < len; meshIndex++)
     {
@@ -462,7 +549,19 @@ std::vector<Mesh*> Device::LoadJSONFile(const std::string& fileName)
             float ny = (float)verticesArray[index * verticesStep + 4].GetDouble();
             float nz = (float)verticesArray[index * verticesStep + 5].GetDouble();
 
-            mesh->Vertices[index] = {{nx, ny, nz}, {x, y, z}, {0, 0, 0}};
+            mesh->Vertices[index] = {{nx, ny, nz}, {x, y, z}, {0, 0, 0}, {0, 0}};
+
+            if (uvCount > 0)
+            {
+                // Loading the texture coordinates
+                float u = (float)verticesArray[index * verticesStep + 6].GetDouble();
+                float v = (float)verticesArray[index * verticesStep + 7].GetDouble();;
+                mesh->Vertices[index].TextureCoordinates = {u, v};
+            }
+            else
+            {
+                mesh->Vertices[index].TextureCoordinates = Vec2::ZERO;
+            }
         }
 
         // Then filling the Faces array
@@ -477,6 +576,15 @@ std::vector<Mesh*> Device::LoadJSONFile(const std::string& fileName)
         // Getting the position you've set in Blender
         const auto& position = meshObj["position"];
         mesh->Position = Vec3((float)position[0].GetDouble(), (float)position[1].GetDouble(), (float)position[2].GetDouble());
+
+        if (uvCount > 0)
+        {
+            // Texture
+            std::string meshTextureID = meshObj["materialId"].GetString();
+            std::string meshTextureName = materials[meshTextureID].DiffuseTextureName;
+            mesh->Texture = std::make_shared<Texture>(meshTextureName, 512, 512);
+        }
+
         meshes.push_back(mesh);
     }
     return meshes;

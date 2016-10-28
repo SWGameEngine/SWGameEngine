@@ -24,6 +24,8 @@
     {
         friend class Application;
         friend class Device; //FIXME: remove this
+        friend class Texture;
+        friend class Image;
     public:
         static const std::string DIRECTORY_SEPARATOR;
 

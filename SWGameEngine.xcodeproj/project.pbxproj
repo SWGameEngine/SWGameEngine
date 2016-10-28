@@ -7,6 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1A11E7A31DC249D40010ACB6 /* Texture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A11E7A11DC249D40010ACB6 /* Texture.cpp */; };
+		1A11E7A51DC24B680010ACB6 /* Base.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A11E7A41DC24B680010ACB6 /* Base.cpp */; };
+		1A11E7A81DC24E570010ACB6 /* Material.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A11E7A61DC24E570010ACB6 /* Material.cpp */; };
+		1A11E7AA1DC252150010ACB6 /* Suzanne.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 1A11E7A91DC252150010ACB6 /* Suzanne.jpg */; };
+		1A11E7B01DC2EAFF0010ACB6 /* Image.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A11E7AE1DC2EAFF0010ACB6 /* Image.cpp */; };
+		1A11E7B31DC2EB6A0010ACB6 /* Size2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A11E7B11DC2EB6A0010ACB6 /* Size2.cpp */; };
+		1A11E7B61DC2EBA40010ACB6 /* Size3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A11E7B41DC2EBA40010ACB6 /* Size3.cpp */; };
+		1A11E9541DC2EC0D0010ACB6 /* stb_vorbis.c in Sources */ = {isa = PBXBuildFile; fileRef = 1A11E7ED1DC2EC0C0010ACB6 /* stb_vorbis.c */; };
 		1A371B541DC05ACF00431D1F /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A371B531DC05ACF00431D1F /* AppKit.framework */; };
 		1A81EDB71DBFADA300CF91A5 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A81EDB61DBFADA300CF91A5 /* AppDelegate.m */; };
 		1A81EDBA1DBFADA300CF91A5 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A81EDB91DBFADA300CF91A5 /* main.m */; };
@@ -39,6 +47,37 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		1A11E7A11DC249D40010ACB6 /* Texture.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Texture.cpp; sourceTree = "<group>"; };
+		1A11E7A21DC249D40010ACB6 /* Texture.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Texture.hpp; sourceTree = "<group>"; };
+		1A11E7A41DC24B680010ACB6 /* Base.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Base.cpp; sourceTree = "<group>"; };
+		1A11E7A61DC24E570010ACB6 /* Material.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Material.cpp; sourceTree = "<group>"; };
+		1A11E7A71DC24E570010ACB6 /* Material.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Material.hpp; sourceTree = "<group>"; };
+		1A11E7A91DC252150010ACB6 /* Suzanne.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = Suzanne.jpg; path = SWGameEngine/Resources/Suzanne.jpg; sourceTree = "<group>"; };
+		1A11E7AE1DC2EAFF0010ACB6 /* Image.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Image.cpp; sourceTree = "<group>"; };
+		1A11E7AF1DC2EAFF0010ACB6 /* Image.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Image.h; sourceTree = "<group>"; };
+		1A11E7B11DC2EB6A0010ACB6 /* Size2.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Size2.cpp; sourceTree = "<group>"; };
+		1A11E7B21DC2EB6A0010ACB6 /* Size2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Size2.h; sourceTree = "<group>"; };
+		1A11E7B41DC2EBA40010ACB6 /* Size3.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Size3.cpp; sourceTree = "<group>"; };
+		1A11E7B51DC2EBA40010ACB6 /* Size3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Size3.h; sourceTree = "<group>"; };
+		1A11E7DD1DC2EC0C0010ACB6 /* stb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stb.h; sourceTree = "<group>"; };
+		1A11E7DE1DC2EC0C0010ACB6 /* stb_c_lexer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stb_c_lexer.h; sourceTree = "<group>"; };
+		1A11E7DF1DC2EC0C0010ACB6 /* stb_connected_components.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stb_connected_components.h; sourceTree = "<group>"; };
+		1A11E7E01DC2EC0C0010ACB6 /* stb_divide.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stb_divide.h; sourceTree = "<group>"; };
+		1A11E7E11DC2EC0C0010ACB6 /* stb_dxt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stb_dxt.h; sourceTree = "<group>"; };
+		1A11E7E21DC2EC0C0010ACB6 /* stb_easy_font.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stb_easy_font.h; sourceTree = "<group>"; };
+		1A11E7E31DC2EC0C0010ACB6 /* stb_herringbone_wang_tile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stb_herringbone_wang_tile.h; sourceTree = "<group>"; };
+		1A11E7E41DC2EC0C0010ACB6 /* stb_image.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stb_image.h; sourceTree = "<group>"; };
+		1A11E7E51DC2EC0C0010ACB6 /* stb_image_resize.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stb_image_resize.h; sourceTree = "<group>"; };
+		1A11E7E61DC2EC0C0010ACB6 /* stb_image_write.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stb_image_write.h; sourceTree = "<group>"; };
+		1A11E7E71DC2EC0C0010ACB6 /* stb_leakcheck.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stb_leakcheck.h; sourceTree = "<group>"; };
+		1A11E7E81DC2EC0C0010ACB6 /* stb_perlin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stb_perlin.h; sourceTree = "<group>"; };
+		1A11E7E91DC2EC0C0010ACB6 /* stb_rect_pack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stb_rect_pack.h; sourceTree = "<group>"; };
+		1A11E7EA1DC2EC0C0010ACB6 /* stb_textedit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stb_textedit.h; sourceTree = "<group>"; };
+		1A11E7EB1DC2EC0C0010ACB6 /* stb_tilemap_editor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stb_tilemap_editor.h; sourceTree = "<group>"; };
+		1A11E7EC1DC2EC0C0010ACB6 /* stb_truetype.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stb_truetype.h; sourceTree = "<group>"; };
+		1A11E7ED1DC2EC0C0010ACB6 /* stb_vorbis.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = stb_vorbis.c; sourceTree = "<group>"; };
+		1A11E7EE1DC2EC0C0010ACB6 /* stb_voxel_render.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stb_voxel_render.h; sourceTree = "<group>"; };
+		1A11E7EF1DC2EC0C0010ACB6 /* stretchy_buffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stretchy_buffer.h; sourceTree = "<group>"; };
 		1A371B531DC05ACF00431D1F /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
 		1A81EDB21DBFADA300CF91A5 /* SWGameEngine.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SWGameEngine.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1A81EDB51DBFADA300CF91A5 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -130,6 +169,32 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		1A11E7B71DC2EC0C0010ACB6 /* stb */ = {
+			isa = PBXGroup;
+			children = (
+				1A11E7DD1DC2EC0C0010ACB6 /* stb.h */,
+				1A11E7DE1DC2EC0C0010ACB6 /* stb_c_lexer.h */,
+				1A11E7DF1DC2EC0C0010ACB6 /* stb_connected_components.h */,
+				1A11E7E01DC2EC0C0010ACB6 /* stb_divide.h */,
+				1A11E7E11DC2EC0C0010ACB6 /* stb_dxt.h */,
+				1A11E7E21DC2EC0C0010ACB6 /* stb_easy_font.h */,
+				1A11E7E31DC2EC0C0010ACB6 /* stb_herringbone_wang_tile.h */,
+				1A11E7E41DC2EC0C0010ACB6 /* stb_image.h */,
+				1A11E7E51DC2EC0C0010ACB6 /* stb_image_resize.h */,
+				1A11E7E61DC2EC0C0010ACB6 /* stb_image_write.h */,
+				1A11E7E71DC2EC0C0010ACB6 /* stb_leakcheck.h */,
+				1A11E7E81DC2EC0C0010ACB6 /* stb_perlin.h */,
+				1A11E7E91DC2EC0C0010ACB6 /* stb_rect_pack.h */,
+				1A11E7EA1DC2EC0C0010ACB6 /* stb_textedit.h */,
+				1A11E7EB1DC2EC0C0010ACB6 /* stb_tilemap_editor.h */,
+				1A11E7EC1DC2EC0C0010ACB6 /* stb_truetype.h */,
+				1A11E7ED1DC2EC0C0010ACB6 /* stb_vorbis.c */,
+				1A11E7EE1DC2EC0C0010ACB6 /* stb_voxel_render.h */,
+				1A11E7EF1DC2EC0C0010ACB6 /* stretchy_buffer.h */,
+			);
+			path = stb;
+			sourceTree = "<group>";
+		};
 		1A371B521DC05ACF00431D1F /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -186,6 +251,10 @@
 		1A81EDFC1DBFBF4C00CF91A5 /* math */ = {
 			isa = PBXGroup;
 			children = (
+				1A11E7B41DC2EBA40010ACB6 /* Size3.cpp */,
+				1A11E7B51DC2EBA40010ACB6 /* Size3.h */,
+				1A11E7B11DC2EB6A0010ACB6 /* Size2.cpp */,
+				1A11E7B21DC2EB6A0010ACB6 /* Size2.h */,
 				1A81EDFD1DBFBF4C00CF91A5 /* CCMath.h */,
 				1A81EDFE1DBFBF4C00CF91A5 /* CCMathBase.h */,
 				1A81EDFF1DBFBF4C00CF91A5 /* Mat4.cpp */,
@@ -216,21 +285,28 @@
 		1A81EE231DBFC13900CF91A5 /* core */ = {
 			isa = PBXGroup;
 			children = (
-				1AE9207D1DC1B26200EDB90A /* CompileConfig.h */,
-				1AE9207E1DC1B26200EDB90A /* Noncopyable.h */,
+				1A11E7AE1DC2EAFF0010ACB6 /* Image.cpp */,
+				1A11E7AF1DC2EAFF0010ACB6 /* Image.h */,
+				1A11E7A41DC24B680010ACB6 /* Base.cpp */,
 				1A81EE2D1DBFC3C100CF91A5 /* Base.hpp */,
 				1A81EE2A1DBFC32900CF91A5 /* Bitmap.cpp */,
 				1A81EE2B1DBFC32900CF91A5 /* Bitmap.hpp */,
 				1A81EE2E1DBFC97600CF91A5 /* Camera.cpp */,
 				1A81EE2F1DBFC97600CF91A5 /* Camera.hpp */,
+				1AE9207D1DC1B26200EDB90A /* CompileConfig.h */,
 				1A81EE271DBFC27C00CF91A5 /* Device.cpp */,
 				1A81EE281DBFC27C00CF91A5 /* Device.hpp */,
 				1A81EE241DBFC13900CF91A5 /* Game.cpp */,
 				1A81EE251DBFC13900CF91A5 /* Game.hpp */,
 				1A81EE311DBFC98B00CF91A5 /* Mesh.cpp */,
 				1A81EE321DBFC98B00CF91A5 /* Mesh.hpp */,
+				1AE9207E1DC1B26200EDB90A /* Noncopyable.h */,
 				1A81EE341DC03E5500CF91A5 /* Ref.cpp */,
 				1A81EE351DC03E5500CF91A5 /* Ref.hpp */,
+				1A11E7A11DC249D40010ACB6 /* Texture.cpp */,
+				1A11E7A21DC249D40010ACB6 /* Texture.hpp */,
+				1A11E7A61DC24E570010ACB6 /* Material.cpp */,
+				1A11E7A71DC24E570010ACB6 /* Material.hpp */,
 			);
 			path = core;
 			sourceTree = "<group>";
@@ -247,6 +323,7 @@
 		1AE9207A1DC1B13400EDB90A /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				1A11E7A91DC252150010ACB6 /* Suzanne.jpg */,
 				1AE9207B1DC1B14100EDB90A /* models */,
 			);
 			name = Resources;
@@ -255,6 +332,7 @@
 		1AE920801DC1B39E00EDB90A /* external */ = {
 			isa = PBXGroup;
 			children = (
+				1A11E7B71DC2EC0C0010ACB6 /* stb */,
 				1AE920811DC1B39E00EDB90A /* rapidjson */,
 			);
 			path = external;
@@ -379,6 +457,7 @@
 				1A81EE1C1DBFBF4C00CF91A5 /* Quaternion.inl in Resources */,
 				1A81EE151DBFBF4C00CF91A5 /* Mat4.inl in Resources */,
 				1A81EE1A1DBFBF4C00CF91A5 /* MathUtilSSE.inl in Resources */,
+				1A11E7AA1DC252150010ACB6 /* Suzanne.jpg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -389,13 +468,18 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1A11E7A81DC24E570010ACB6 /* Material.cpp in Sources */,
+				1A11E7A51DC24B680010ACB6 /* Base.cpp in Sources */,
 				1A81EE301DBFC97600CF91A5 /* Camera.cpp in Sources */,
 				1A81EE211DBFBF4C00CF91A5 /* Vec4.cpp in Sources */,
+				1A11E7B61DC2EBA40010ACB6 /* Size3.cpp in Sources */,
 				1A81EDCD1DBFAF9F00CF91A5 /* GameView.mm in Sources */,
 				1A81EE361DC03E5500CF91A5 /* Ref.cpp in Sources */,
 				1AE679A71DC1AFF300AA0A0E /* FileSystem.cpp in Sources */,
 				1A81EDBA1DBFADA300CF91A5 /* main.m in Sources */,
 				1A81EE1F1DBFBF4C00CF91A5 /* Vec3.cpp in Sources */,
+				1A11E7B01DC2EAFF0010ACB6 /* Image.cpp in Sources */,
+				1A11E7A31DC249D40010ACB6 /* Texture.cpp in Sources */,
 				1A81EE161DBFBF4C00CF91A5 /* MathUtil.cpp in Sources */,
 				1A81EDB71DBFADA300CF91A5 /* AppDelegate.m in Sources */,
 				1A81EE141DBFBF4C00CF91A5 /* Mat4.cpp in Sources */,
@@ -405,6 +489,8 @@
 				1A81EE291DBFC27C00CF91A5 /* Device.cpp in Sources */,
 				1A81EE1B1DBFBF4C00CF91A5 /* Quaternion.cpp in Sources */,
 				1A81EE261DBFC13900CF91A5 /* Game.cpp in Sources */,
+				1A11E9541DC2EC0D0010ACB6 /* stb_vorbis.c in Sources */,
+				1A11E7B31DC2EB6A0010ACB6 /* Size2.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
